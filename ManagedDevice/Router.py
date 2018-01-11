@@ -19,4 +19,18 @@ class Router(ManagedDevice.Device):
         ret = []
         for port in self.ports: 
             ret.append (super().queryDevice(port, interval))
-        ret.append(super().query())
+        for obj in ('ipInReceives', 
+                   'ipInHdrErrors', 
+                   'ifInAddrErrors', 
+                   'ipForwardDatagrams',
+                   'ipInUnknownProtos',
+                   'ipInDiscards',
+                   'ipInDelivers',
+                   'ipOutRequests'
+                   'ipOutDiscards',
+                   'ipOutNoRoutes',
+                   'ipRoutingDiscards',
+                   '',
+                   'ifOutQLen'):
+            ret.append(super()._query('IP-MIB', obj, 0))
+        
