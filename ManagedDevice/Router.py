@@ -30,7 +30,6 @@ class Router(ManagedDevice.Device):
                    'ipOutDiscards',
                    'ipOutNoRoutes',
                    'ipRoutingDiscards',
-                   '',
                    'ifOutQLen'):
             ret.append(super()._query('IP-MIB', obj, 0))
-        
+        return ret
