@@ -19,6 +19,7 @@ class Router(ManagedDevice.Device):
         ret = []
         for port in self.ports: 
             ret.append (super().queryDevice(port, interval))
+        # TODO: Implementar grupo ICMP
         for obj in ('ipInReceives', 
                    'ipInHdrErrors', 
                    'ifInAddrErrors', 

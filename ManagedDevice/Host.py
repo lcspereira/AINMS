@@ -17,5 +17,20 @@ class Host(ManagedDevice.Device):
         ret = []
         for port in self.ports: 
             ret.append (super().queryDevice(port, interval))
-        
+        for obj in ('tcpMaxConn', 
+                   'tcpCurrEstab', 
+                   'tcpAttemptFails', 
+                   'tcpEstabResets',
+                   'tcpRetransSegs',
+                   'tcpInErrs',
+                   'tcpOutRsts'):
+            ret.append(super()._query('TCP-MIB', obj, 0))
+        for obj in ('udpNoPorts',
+                   'udpInErrors', 
+                   'tcpAttemptFails', 
+                   'tcpEstabResets',
+                   'tcpRetransSegs',
+                   'tcpInErrs',
+                   'tcpOutRsts'):
+            ret.append(super()._query('UDP-MIB', obj, 0))
         return ret
