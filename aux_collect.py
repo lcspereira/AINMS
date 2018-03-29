@@ -32,11 +32,11 @@ for oct in range (0, 255):
     ip = '192.168.' + str(oct) + '.253'
     try:
         print ("Consultado dispositivo " + ip + "...")
-        num_ifaces = query(ip, 'mondpe', 'ifNumber', 0)
+        num_ifaces = query(ip, 'public', 'ifNumber', 0)
         for iface in range(1, int(num_ifaces)):
             res = []
             aux = {}
-            if query(ip, 'mondpe', 'ifAdminStatus', iface) == 'up' and query(ip, 'mondpe', 'ifOperStatus', iface) == 'up':
+            if query(ip, 'public', 'ifAdminStatus', iface) == 'up' and query(ip, 'public', 'ifOperStatus', iface) == 'up':
                 for obj in ('ifInOctets', 
                         'ifOutOctets',
                         'ifInUcastPkts',
@@ -48,7 +48,7 @@ for oct in range (0, 255):
                         'ifInDiscards',
                         'ifOutDiscards'):
                     aux[obj] = []
-                    aux[obj].append (query(ip, 'mondpe', obj, iface))
+                    aux[obj].append (query(ip, 'public', obj, iface))
                 time.sleep(5)
 
                 for obj in ('ifInOctets', 
@@ -61,9 +61,9 @@ for oct in range (0, 255):
                         'ifOutErrors',
                         'ifInDiscards',
                         'ifOutDiscards'):
-                    aux[obj].append (query(ip, 'mondpe', obj, iface))
+                    aux[obj].append (query(ip, 'public', obj, iface))
 
-                aux['ifSpeed'] = query(ip, 'mondpe', 'ifSpeed', iface)
+                aux['ifSpeed'] = query(ip, 'public', 'ifSpeed', iface)
                 res.append (float(aux['ifSpeed']))
                 res.append ((((float (aux['ifInOctets'][1]) - float(aux['ifInOctets'][0])) + (float(aux['ifOutOctets'][1]) - float (aux['ifOutOctets'][0])) / 5) * 8))
                 #TODO: Não faz sentido array para erros, ucastpkts e descartes
