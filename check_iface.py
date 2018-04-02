@@ -4,12 +4,13 @@ Created on 9 de mar de 2018
 @author: lucas
 '''
 from pysnmp.hlapi import *
-from pysnmp.error import *
 import time
 import csv
 import sys
 import os
 import socket
+import pickle
+import numpy as np
 
 def query (addr, port, comm, obj, idx):
     query = getCmd(SnmpEngine(), 
@@ -28,26 +29,29 @@ def query (addr, port, comm, obj, idx):
     else:
         aux_val = str(varBinds[0])
         ret = aux_val.split(' = ', maxsplit=1)[1]
-        try:
-            aux = int(ret)
-        except ValueError:
-            ret = 0
-        finally:
-            return ret
+        #try:
+        #    aux = int(ret)
+        #except ValueError:
+        #    ret = 0
+        #finally:
+        return ret
 
 
-addr = sys.argv[0]
-port = sys.argv[1]
-comm = sys.argv[2]
-poll = sys.argv[3]
+addr = sys.argv[1]
+port = sys.argv[2]
+comm = sys.argv[3]
+poll = int (sys.argv[4])
 
 try:
-    print ("Consultado dispositivo " + ip + "...")
-    num_ifaces = query(ip, port, comm, 'ifNumber', 0)
+    print ("Consultado dispositivo " + addr + "...")
+    num_ifaces = query(addr, port, comm, 'ifNumber', 0)
     for iface in range(1, int(num_ifaces)):
         res = []
         aux = {}
-        if query(ip, port, comm, 'ifAdminStatus', iface) == 'up' and query(ip, comm, 'ifOperStatus', iface) == 'up':
+        ifAdminStatus = query(addr, port, comm, 'ifAdminStatus', iface).replace ("'", "")
+        ifOperStatus  = query(addr, port, comm, 'ifOperStatus', iface).replace ("'", "")
+        
+        if ifAdminStatus == "up" and ifOperStatus == "up":
             for obj in ('ifInOctets',
                     'ifOutOctets',
                     'ifInUcastPkts',
@@ -59,7 +63,7 @@ try:
                     'ifInDiscards',
                     'ifOutDiscards'):
                 aux[obj] = []
-                aux[obj].append (query(ip, port, comm, obj, iface))
+                aux[obj].append (query(addr, port, comm, obj, iface))
             time.sleep(poll)
 
             for obj in ('ifInOctets',
@@ -72,11 +76,11 @@ try:
                     'ifOutErrors',
                     'ifInDiscards',
                     'ifOutDiscards'):
-                aux[obj].append (query(ip, port, comm, obj, iface))
+                aux[obj].append (query(addr, port, comm, obj, iface))
 
-            aux['ifSpeed'] = query(ip, port, comm, 'ifSpeed', iface)
+            aux['ifSpeed'] = query(addr, port, comm, 'ifSpeed', iface)
             res.append (float(aux['ifSpeed']))
-            res.append ((((float (aux['ifInOctets'][1]) - float(aux['ifInOctets'][0])) + (float(aux['ifOutOctets'][1]) - float (aux['ifOutOctets'][0])) / 5) * 8))
+            res.append ((((float (aux['ifInOctets'][1]) - float(aux['ifInOctets'][0])) + (float(aux['ifOutOctets'][1]) - float (aux['ifOutOctets'][0])) / poll) * 8))
             #TODO: Não faz sentido array para erros, ucastpkts e descartes
             try:
                 res.append (float(aux['ifInErrors'][1]) / (float(aux['ifInUcastPkts'][1]) + float(aux['ifInNUcastPkts'][1])))
@@ -84,10 +88,17 @@ try:
                 res.append (float(aux['ifInDiscards'][1]) / (float(aux['ifInUcastPkts'][1]) + float(aux['ifInNUcastPkts'][1])))
                 res.append (float(aux['ifOutDiscards'][1]) / (float(aux['ifOutUcastPkts'][1]) + float(aux['ifOutNUcastPkts'][1])))
                 #TODO: Transmitir os dados à rede neural
+                sock = socket.socket (socket.AF_UNIX, socket.SOCK_STREAM)
+                sock.connect ("/tmp/ainms.sock")
+                data = np.array(res)
+                serialized_data = pickle.dumps (data)
+                sock.sendall (serialized_data)
+                data = sock.recv (5192)
+                print (pickle.loads(data))
             except ZeroDivisionError:
                 pass
         else:
-            print ("Interface " + str(iface) + " não está operacional.")
+            print ("Interface " + str(iface) + " não está operacional. (" + ifAdminStatus + ", " + ifOperStatus + ")")
 except Exception as ex:
     print (str(ex))
     pass
