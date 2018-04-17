@@ -5,17 +5,35 @@ Created on 20 de fev de 2018
 '''
 
 from sklearn.neural_network import MLPClassifier
+import matplotlib.pyplot as plt
 import pandas
 import socket
 import os
 import pickle
 import numpy
+import _thread
+
+
+def show_loss_graph (loss):
+    try:
+        plt.plot (loss)
+        plt.ylabel ("Loss")
+        plt.xlabel ("Iteration")
+        plt.show()
+    except Exception as ex:
+        print (str(ex))
+        pass
 
 def train_device (train_file):
     dataset = pandas.read_csv (train_file)
     X, y = dataset.iloc[:,:-1], dataset.iloc[:, -1]
-    clf = MLPClassifier(solver='sgd', activation='logistic', hidden_layer_sizes=(50,10), max_iter=10000)
+
+    # Classificador perceptron multicamadas
+    # Modelo: Retropropagação de erro
+    # Função de ativação: Logistica sigmoidal
+    clf = MLPClassifier(solver='sgd', activation='logistic', hidden_layer_sizes=(92,60), max_iter=10000, learning_rate='constant', verbose=True)
     clf.fit (X, y)
+    _thread.start_new_thread(show_loss_graph, tuple([clf.loss_curve_]))
     return clf
 
 server = socket.socket (socket.AF_UNIX, socket.SOCK_STREAM)
