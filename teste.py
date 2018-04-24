@@ -7,7 +7,7 @@ from sklearn.metrics import classification_report
 y = []
 preds = []
 print ("================================================================")
-for i in range (0, 10):
+for i in range (0, 100):
     #speeds = [128000, 256000, 512000, 1024000, 2048000, 3072000, 4096000, 10000000, 100000000, 1000000000]
     #speed = random.choice(speeds)
     bit_rate = random.random() * 100
@@ -28,7 +28,7 @@ for i in range (0, 10):
     print (pred)
     sock.close ()
 print ("================================================================")
-for i in range (0, 10):
+for i in range (0, 100):
     #speeds = [128000, 256000, 512000, 1024000, 2048000, 3072000, 4096000, 10000000, 100000000, 1000000000]
     #speed = random.choice(speeds)
     bit_rate = random.random() * 10
@@ -49,7 +49,7 @@ for i in range (0, 10):
     print (pred)
     sock.close ()
 print ("================================================================")
-for i in range (0, 10):
+for i in range (0, 100):
     #speeds = [128000, 256000, 512000, 1024000, 2048000, 3072000, 4096000, 10000000, 100000000, 1000000000]
     #speed = random.choice(speeds)
     bit_rate = random.random() * 100
@@ -70,7 +70,7 @@ for i in range (0, 10):
     print (pred)
     sock.close ()
 print ("================================================================")
-for i in range (0, 10):
+for i in range (0, 100):
     #speeds = [128000, 256000, 512000, 1024000, 2048000, 3072000, 4096000, 10000000, 100000000, 1000000000]
     #speed = random.choice(speeds)
     bit_rate = random.random() * 10
@@ -91,7 +91,7 @@ for i in range (0, 10):
     print (pred)
     sock.close ()
 print ("================================================================")
-for i in range (0, 10):
+for i in range (0, 100):
     #speeds = [128000, 256000, 512000, 1024000, 2048000, 3072000, 4096000, 10000000, 100000000, 1000000000]
     #speed = random.choice(speeds)
     bit_rate = random.random() * 10

@@ -43,6 +43,7 @@ port = sys.argv[2]
 comm = sys.argv[3]
 poll = int(sys.argv[4])
 
+
 try:
     print ("Consultado dispositivo " + addr + "...")
     num_ifaces = query(addr, port, comm, 'ifNumber', 0)

@@ -18,6 +18,7 @@ def show_loss_graph (loss):
     try:
         plt.plot (loss)
         plt.ylabel ("Loss")
+        plt.title ("Curva de Perda da Rede Neural")
         plt.xlabel ("Iteration")
         plt.show()
     except Exception as ex:
@@ -27,11 +28,11 @@ def show_loss_graph (loss):
 def train_device (train_file):
     dataset = pandas.read_csv (train_file)
     X, y = dataset.iloc[:,:-1], dataset.iloc[:, -1]
-
     # Classificador perceptron multicamadas
     # Modelo: Retropropagação de erro
     # Função de ativação: Logistica sigmoidal
-    clf = MLPClassifier(solver='sgd', activation='logistic', hidden_layer_sizes=(92,60), max_iter=10000, learning_rate='constant', verbose=True)
+    #clf = MLPClassifier(solver='sgd', activation='logistic', hidden_layer_sizes=(92,60), max_iter=10000, learning_rate='constant', tol=0.0001, verbose=True)
+    clf = MLPClassifier(solver='sgd', activation='logistic', hidden_layer_sizes=(86,), max_iter=10000, learning_rate='adaptive', tol=0.001, learning_rate_init=0.01, verbose=True, early_stopping=False)
     clf.fit (X, y)
     _thread.start_new_thread(show_loss_graph, tuple([clf.loss_curve_]))
     return clf
