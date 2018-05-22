@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 '''
 Created on 20 de fev de 2018
 
@@ -5,36 +6,53 @@ Created on 20 de fev de 2018
 '''
 
 from sklearn.neural_network import MLPClassifier
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt, mpld3
 import pandas
 import socket
 import os
 import pickle
-import numpy
+import numpy as np
 import _thread
 
 
-def show_loss_graph (loss):
+def show_graphs (dataset, loss):
     try:
-        plt.plot (loss)
-        plt.ylabel ("Loss")
-        plt.title ("Curva de Perda da Rede Neural")
-        plt.xlabel ("Iteration")
+        #plt.plot (loss)
+        #plt.ylabel ("Perda")
+        #plt.title ("Curva de Perda da Rede Neural")
+        #plt.xlabel ("Iteração")
+
+        eighty_percent = np.full ((dataset.shape[0]), 80)
+        ten_percent = np.full ((dataset.shape[0]), 10)
+
+        #dataset.iloc[:,:-1].plot.bar(width=5)
+        
+        dataset.iloc[:,:-1].plot(figsize=(20,6))
+        plt.plot (dataset.index, eighty_percent, 'r--')
+        plt.plot (dataset.index, ten_percent, 'y--')
+        plt.axes().get_xaxis().set_visible (False)
+        plt.title ("Visualização de Dados de Treinamento")
+        plt.ylabel ("%")
+
+        with open("/tmp/train.html", 'w') as html_chart: 
+            html_chart.write (mpld3.fig_to_html (plt.gcf()))
+
         plt.show()
+        plt.close()
     except Exception as ex:
-        print (str(ex))
-        pass
+        raise (ex)
 
 def train_device (train_file):
     dataset = pandas.read_csv (train_file)
     X, y = dataset.iloc[:,:-1], dataset.iloc[:, -1]
+
     # Classificador perceptron multicamadas
     # Modelo: Retropropagação de erro
     # Função de ativação: Logistica sigmoidal
     #clf = MLPClassifier(solver='sgd', activation='logistic', hidden_layer_sizes=(92,60), max_iter=10000, learning_rate='constant', tol=0.0001, verbose=True)
-    clf = MLPClassifier(solver='sgd', activation='logistic', hidden_layer_sizes=(86,), max_iter=10000, learning_rate='adaptive', tol=0.001, learning_rate_init=0.01, verbose=True, early_stopping=False)
+    clf = MLPClassifier(solver='sgd', activation='logistic', hidden_layer_sizes=(3200,), max_iter=10000, learning_rate='adaptive', tol=0.001, learning_rate_init=0.01, verbose=True, early_stopping=False)
     clf.fit (X, y)
-    _thread.start_new_thread(show_loss_graph, tuple([clf.loss_curve_]))
+    _thread.start_new_thread(show_graphs, tuple([dataset, clf.loss_curve_]))
     return clf
 
 server = socket.socket (socket.AF_UNIX, socket.SOCK_STREAM)
@@ -52,8 +70,8 @@ while True:
             data = conn.recv (5192)
             if data:
                 mgmt_data = pickle.loads (data)
-                print (mgmt_data)
-                conn.sendall (pickle.dumps (if_clf.predict(mgmt_data)))
+                print (str(mgmt_data[0]))
+                conn.sendall (pickle.dumps ([if_clf.predict(mgmt_data)]))
             else:
                 break
         conn.close ()

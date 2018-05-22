@@ -29,8 +29,7 @@ def query (addr, comm, obj, idx):
 
 
 for oct in range (0, 255):
-    #ip = '192.168.' + str(oct) + '.253'
-    ip = '192.168.0.1'
+    ip = '192.168.' + str(oct) + '.253'
     try:
         print ("Consultado dispositivo " + ip + "...")
         num_ifaces = query(ip, 'public', 'ifNumber', 0)
@@ -65,16 +64,16 @@ for oct in range (0, 255):
                     aux[obj].append (query(ip, 'public', obj, iface))
 
                 aux['ifSpeed'] = query(ip, 'public', 'ifSpeed', iface)
-                #res.append (((((float (aux['ifInOctets'][1]) - float(aux['ifInOctets'][0])) + (float(aux['ifOutOctets'][1]) - float (aux['ifOutOctets'][0])) / 5) / float(aux['ifSpeed']))) * 100)
-                res.append ((float(aux['ifInOctets'][1]) - float(aux['ifInOctets'][0])) / (5 * float(aux['ifSpeed'])) * 100)
-                res.append ((float(aux['ifOutOctets'][1]) - float(aux['ifOutOctets'][0])) / (5 * float(aux['ifSpeed'])) * 100)
+                res.append (float(aux['ifSpeed']))
+                #res.append ((((float (aux['ifInOctets'][1]) - float(aux['ifInOctets'][0])) + (float(aux['ifOutOctets'][1]) - float (aux['ifOutOctets'][0])) / 5) * 8))
+                res.append ((float(aux['ifInOctets'][1]) - float(aux['ifInOctets'][0])) / (
                 #TODO: Não faz sentido array para erros, ucastpkts e descartes
                 try:
-                    res.append ((float(aux['ifInErrors'][1]) / (float(aux['ifInUcastPkts'][1]) + float(aux['ifInNUcastPkts'][1]))) * 100)
-                    res.append ((float(aux['ifOutErrors'][1]) / (float(aux['ifOutUcastPkts'][1]) + float(aux['ifOutNUcastPkts'][1]))) * 100)
-                    res.append ((float(aux['ifInDiscards'][1]) / (float(aux['ifInUcastPkts'][1]) + float(aux['ifInNUcastPkts'][1]))) * 100)
-                    res.append ((float(aux['ifOutDiscards'][1]) / (float(aux['ifOutUcastPkts'][1]) + float(aux['ifOutNUcastPkts'][1]))) * 100)
-                    with open('/tmp/train.csv', 'a') as arq:
+                    res.append (float(aux['ifInErrors'][1]) / (float(aux['ifInUcastPkts'][1]) + float(aux['ifInNUcastPkts'][1])))
+                    res.append (float(aux['ifOutErrors'][1]) / (float(aux['ifOutUcastPkts'][1]) + float(aux['ifOutNUcastPkts'][1])))
+                    res.append (float(aux['ifInDiscards'][1]) / (float(aux['ifInUcastPkts'][1]) + float(aux['ifInNUcastPkts'][1])))
+                    res.append (float(aux['ifOutDiscards'][1]) / (float(aux['ifOutUcastPkts'][1]) + float(aux['ifOutNUcastPkts'][1])))
+                    with open('c:\\train.csv', 'a') as arq:
                         writer = csv.writer(arq)
                         writer.writerow (res)
                         print (res)

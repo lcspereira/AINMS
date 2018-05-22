@@ -11,6 +11,7 @@ import os
 import socket
 import pickle
 import numpy as np
+import csv
 
 def query (addr, port, comm, obj, idx):
     query = getCmd(SnmpEngine(), 
@@ -42,6 +43,7 @@ addr = sys.argv[1]
 port = sys.argv[2]
 comm = sys.argv[3]
 poll = int(sys.argv[4])
+test_arr = []
 
 
 try:
@@ -50,11 +52,11 @@ try:
     for iface in range(1, int(num_ifaces)):
         res = []
         aux = {}
-
+        test_arr = []
         ifAdminStatus = query(addr, port, comm, 'ifAdminStatus', iface)
         ifOperStatus  = query(addr, port, comm, 'ifOperStatus', iface)
         
-        if ifAdminStatus == "'up'" and ifOperStatus == "'up'":
+        if ifAdminStatus == "up" and ifOperStatus == "up":
             for obj in ('ifInOctets',
                     'ifOutOctets',
                     'ifInUcastPkts',
@@ -82,7 +84,9 @@ try:
                 aux[obj].append (query(addr, port, comm, obj, iface))
 
             aux['ifSpeed'] = query(addr, port, comm, 'ifSpeed', iface)
-            res.append ((((((float (aux['ifInOctets'][1]) - float(aux['ifInOctets'][0])) + (float(aux['ifOutOctets'][1]) - float (aux['ifOutOctets'][0])) / poll) * 8)) / float (aux['ifSpeed'])) * 100)
+            #res.append ((((((float (aux['ifInOctets'][1]) - float(aux['ifInOctets'][0])) + (float(aux['ifOutOctets'][1]) - float (aux['ifOutOctets'][0])) / poll) * 8)) / float (aux['ifSpeed'])) * 100)
+            res.append ((float(aux['ifInOctets'][1]) - float(aux['ifInOctets'][0])) / (poll * float(aux['ifSpeed'])) * 100)
+            res.append ((float(aux['ifOutOctets'][1]) - float(aux['ifOutOctets'][0])) / (poll * float(aux['ifSpeed'])) * 100)
             #TODO: Não faz sentido array para erros, ucastpkts e descartes
             try:
                 res.append ((float(aux['ifInErrors'][1]) / (float(aux['ifInUcastPkts'][1]) + float(aux['ifInNUcastPkts'][1]))) * 100)
@@ -93,10 +97,15 @@ try:
                 sock = socket.socket (socket.AF_UNIX, socket.SOCK_STREAM)
                 sock.connect ("/tmp/ainms.sock")
                 data = np.array(res)
-                serialized_data = pickle.dumps (data)
+                test_arr = data.tolist()
+                serialized_data = pickle.dumps ([data])
                 sock.sendall (serialized_data)
                 data = sock.recv (5192)
-                print (pickle.loads(data))
+                test_arr.append (pickle.loads(data)[0][0])
+                print (test_arr)
+                with open("if_test_data.csv", 'a') as csv_arq:
+                    writer = csv.writer(csv_arq)
+                    writer.writerow (test_arr)
                 sock.close()
             except ZeroDivisionError:
                 pass
