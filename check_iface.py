@@ -85,15 +85,26 @@ try:
 
             aux['ifSpeed'] = query(addr, port, comm, 'ifSpeed', iface)
             #res.append ((((((float (aux['ifInOctets'][1]) - float(aux['ifInOctets'][0])) + (float(aux['ifOutOctets'][1]) - float (aux['ifOutOctets'][0])) / poll) * 8)) / float (aux['ifSpeed'])) * 100)
-            res.append ((float(aux['ifInOctets'][1]) - float(aux['ifInOctets'][0])) / (poll * float(aux['ifSpeed'])) * 100)
-            res.append ((float(aux['ifOutOctets'][1]) - float(aux['ifOutOctets'][0])) / (poll * float(aux['ifSpeed'])) * 100)
+            res.append (((float(aux['ifInOctets'][1]) - float(aux['ifInOctets'][0])) * 8 * 100) / (poll * float(aux['ifSpeed'])))
+            res.append (((float(aux['ifOutOctets'][1]) - float(aux['ifOutOctets'][0])) * 8 * 100) / (poll * float(aux['ifSpeed'])))
             #TODO: Não faz sentido array para erros, ucastpkts e descartes
             try:
-                res.append ((float(aux['ifInErrors'][1]) / (float(aux['ifInUcastPkts'][1]) + float(aux['ifInNUcastPkts'][1]))) * 100)
-                res.append ((float(aux['ifOutErrors'][1]) / (float(aux['ifOutUcastPkts'][1]) + float(aux['ifOutNUcastPkts'][1]))) * 100)
-                res.append ((float(aux['ifInDiscards'][1]) / (float(aux['ifInUcastPkts'][1]) + float(aux['ifInNUcastPkts'][1]))) * 100)
-                res.append ((float(aux['ifOutDiscards'][1]) / (float(aux['ifOutUcastPkts'][1]) + float(aux['ifOutNUcastPkts'][1]))) * 100)
-                #TODO: Transmitir os dados à rede neural
+                res.append(((float(aux['ifInErrors'][1]) - float(aux['ifInErrors'][0])) * 100) / (
+                            (float(aux['ifInUcastPkts'][1]) - float(aux['ifInUcastPkts'][0])) + (
+                                float(aux['ifInNUcastPkts'][1]) - float(aux['ifInNUcastPkts'][0]))))
+
+                res.append(((float(aux['ifOutErrors'][1]) - float(aux['ifOutErrors'][0])) * 100) / (
+                        (float(aux['ifInUcastPkts'][1]) - float(aux['ifInUcastPkts'][0])) + (
+                        float(aux['ifInNUcastPkts'][1]) - float(aux['ifInNUcastPkts'][0]))))
+
+                res.append(((float(aux['ifInDiscards'][1]) - float(aux['ifInDiscards'][0])) * 100) / (
+                            (float(aux['ifInUcastPkts'][1]) - float(aux['ifInUcastPkts'][0])) + (
+                                float(aux['ifInNUcastPkts'][1]) - float(aux['ifInNUcastPkts'][0]))))
+
+                res.append(((float(aux['ifOutDiscards'][1]) - float(aux['ifOutDiscards'][0])) * 100) / (
+                        (float(aux['ifInUcastPkts'][1]) - float(aux['ifInUcastPkts'][0])) + (
+                        float(aux['ifInNUcastPkts'][1]) - float(aux['ifInNUcastPkts'][0]))))
+
                 sock = socket.socket (socket.AF_UNIX, socket.SOCK_STREAM)
                 sock.connect ("/tmp/ainms.sock")
                 data = np.array(res)
