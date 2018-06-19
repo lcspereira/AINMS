@@ -23,13 +23,13 @@ try:
     #data_graph.plot.bar(ax=axes[0], width=2)
     data_graph.plot(ax=axes[0])
     axes[0].set_title("Visualização dos dados de teste")
-    axes[0].ylabel = "%"
-    axes[0].axes.get_xaxis().set_visible (False)
+    axes[0].set_ylabel ("%")
+    #axes[0].axes.get_xaxis().set_visible (False)
 
     test.plot (ax=axes[1])
     truth.plot (ax=axes[1])
     axes[1].set_title("Predição X Verdade")
-    axes[1].ylabel = "Código de saída"
+    axes[1].set_ylabel ("Código de saída")
     axes[1].legend()
     plt.show()
     with open("report.html", 'w') as html_chart: 
